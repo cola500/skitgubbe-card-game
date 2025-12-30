@@ -148,10 +148,11 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       );
 
       // Add cards to discard pile
-      let newDiscardPile = [...state.discardPile, ...cardsToPlay];
+      const cardsWithSource = cardsToPlay.map(c => ({ ...c, animationSource: 'hand' as const }));
+      let newDiscardPile = [...state.discardPile, ...cardsWithSource];
 
       // Apply special card effect (only for the last/first card in the group)
-      const playedCard = cardsToPlay[0];
+      const playedCard = cardsWithSource[0];
       const specialEffect = applySpecialCardEffect(playedCard);
 
       // Check if pile should burn (4 same rank on top or 10 played)
@@ -239,16 +240,49 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const newDeck = state.deck.slice(0, -1);
 
       if (targetPlayer === 'player') {
+        // Spela kortet DIREKT istället för att lägga till i handen
+        const topCard = getTopCard(state.discardPile);
+        const cardName = `${drawnCard.rank}${getSuitEmoji(drawnCard.suit)}`;
+
+        // Kan kortet spelas?
+        if (!canPlayCard(drawnCard, topCard, state.reverseMode)) {
+          // Måste ta högen + det dragna kortet
+          return {
+            ...state,
+            deck: newDeck,
+            player: {
+              ...state.player,
+              hand: [...state.player.hand, drawnCard, ...state.discardPile]
+            },
+            discardPile: [],
+            reverseMode: false,
+            currentTurn: 'ai',
+            lastAction: `Drog ${cardName} - kunde inte spela! Tog högen.`
+          };
+        }
+
+        // Spela kortet direkt
+        const cardWithSource = { ...drawnCard, animationSource: 'deck' as const };
+        let newDiscardPile = [...state.discardPile, cardWithSource];
+        const specialEffect = applySpecialCardEffect(cardWithSource);
+        const shouldBurn = checkBurnPile(newDiscardPile) || drawnCard.rank === '10';
+
+        if (shouldBurn) {
+          newDiscardPile = [];
+        }
+
+        const nextTurn: 'player' | 'ai' = shouldBurn ? 'player' : 'ai';
+
         return {
           ...state,
           deck: newDeck,
-          player: {
-            ...state.player,
-            hand: [...state.player.hand, drawnCard]
-          },
-          lastAction: `Du drog ett kort (${drawnCard.rank}${getSuitEmoji(drawnCard.suit)})`
+          discardPile: newDiscardPile,
+          reverseMode: specialEffect.reverseMode ?? false,
+          currentTurn: nextTurn,
+          lastAction: `Drog och spelade: ${cardName}${shouldBurn ? ' - Högen bränns!' : ''}`
         };
       } else {
+        // AI draws to hand (AI has its own logic for playing)
         return {
           ...state,
           deck: newDeck,
@@ -353,14 +387,31 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         };
       }
 
-      // Remove card from player's hand
-      let newPlayerHand = state.player.hand.filter(c => c.id !== cardToPlay.id);
+      // Remove card from player's appropriate source (hand, tableUp, or tableDown)
+      const cardSource = getNextCardSource(state.player);
+      let newPlayer = { ...state.player };
+
+      switch (cardSource) {
+        case 'hand':
+          newPlayer.hand = newPlayer.hand.filter(c => c.id !== cardToPlay.id);
+          break;
+        case 'tableUp':
+          newPlayer.tableCardsUp = newPlayer.tableCardsUp.filter(c => c.id !== cardToPlay.id);
+          break;
+        case 'tableDown':
+          newPlayer.tableCardsDown = newPlayer.tableCardsDown.filter(c => c.id !== cardToPlay.id);
+          break;
+      }
 
       // Add card to discard pile
-      let newDiscardPile = [...state.discardPile, cardToPlay];
+      const cardWithSource = {
+        ...cardToPlay,
+        animationSource: cardSource !== 'none' ? cardSource : undefined
+      };
+      let newDiscardPile = [...state.discardPile, cardWithSource];
 
       // Apply special card effect
-      const specialEffect = applySpecialCardEffect(cardToPlay);
+      const specialEffect = applySpecialCardEffect(cardWithSource);
 
       // Check if pile should burn
       const shouldBurn = checkBurnPile(newDiscardPile) || cardToPlay.rank === '10';
@@ -369,9 +420,13 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         newDiscardPile = [];
       }
 
-      // Draw cards to refill hand to 3
-      const { drawnCards, remainingDeck } = drawCards(state.deck, newPlayerHand.length);
-      newPlayerHand = [...newPlayerHand, ...drawnCards];
+      // Draw cards to refill hand to 3 (ONLY if playing from hand)
+      let newDeck = state.deck;
+      if (cardSource === 'hand') {
+        const { drawnCards, remainingDeck } = drawCards(state.deck, newPlayer.hand.length);
+        newPlayer.hand = [...newPlayer.hand, ...drawnCards];
+        newDeck = remainingDeck;
+      }
 
       // Determine next turn
       const nextTurn: 'player' | 'ai' = shouldBurn ? 'player' : 'ai';
@@ -385,11 +440,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
       const newState: GameState = {
         ...state,
-        player: {
-          ...state.player,
-          hand: newPlayerHand
-        },
-        deck: remainingDeck,
+        player: newPlayer,
+        deck: newDeck,
         discardPile: newDiscardPile,
         reverseMode: specialEffect.reverseMode ?? false,
         currentTurn: nextTurn,
@@ -452,10 +504,14 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       }
 
       // Add cards to discard pile
-      let newDiscardPile = [...state.discardPile, ...cardsToPlay];
+      const cardsWithSource = cardsToPlay.map(c => ({
+        ...c,
+        animationSource: cardSource !== 'none' ? cardSource : undefined
+      }));
+      let newDiscardPile = [...state.discardPile, ...cardsWithSource];
 
       // Apply special card effect
-      const playedCard = cardsToPlay[0];
+      const playedCard = cardsWithSource[0];
       const specialEffect = applySpecialCardEffect(playedCard);
 
       // Check if pile should burn

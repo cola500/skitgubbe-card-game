@@ -16,8 +16,8 @@ interface CardProps {
 
 export default function Card({ card, faceDown = false, selected = false, onClick, disabled = false, small = false }: CardProps) {
   const sizeClasses = small
-    ? 'w-12 h-16 text-xs'
-    : 'w-16 h-24 sm:w-20 sm:h-28';
+    ? 'w-10 h-14 text-xs'
+    : 'w-14 h-20 sm:w-16 sm:h-24';
 
   const cardClasses = `
     relative ${sizeClasses} rounded-lg border-2 shadow-md
@@ -33,7 +33,7 @@ export default function Card({ card, faceDown = false, selected = false, onClick
         initial={cardVariants.initial}
         animate={cardVariants.animate}
         exit={cardVariants.exit}
-        transition={{ duration: ANIMATION_DURATION.normal, ease: EASING.smooth }}
+        transition={{ duration: ANIMATION_DURATION.normal, ease: EASING.custom }}
         className={cardClasses}
         onClick={!disabled ? onClick : undefined}
       >
@@ -55,7 +55,7 @@ export default function Card({ card, faceDown = false, selected = false, onClick
       initial={cardVariants.initial}
       animate={cardVariants.animate}
       exit={cardVariants.exit}
-      transition={{ duration: ANIMATION_DURATION.normal, ease: EASING.smooth }}
+      transition={{ duration: ANIMATION_DURATION.normal, ease: EASING.custom }}
       className={cardClasses}
       onClick={!disabled ? onClick : undefined}
       role={onClick ? 'button' : undefined}
@@ -67,7 +67,7 @@ export default function Card({ card, faceDown = false, selected = false, onClick
         }
       }}
     >
-      <div className={`w-full h-full bg-white rounded-lg p-1 sm:p-2 flex flex-col justify-between overflow-hidden ${isSpecial ? 'ring-2 ring-yellow-400/50' : ''}`}>
+      <div className={`w-full h-full bg-white rounded-lg p-0.5 sm:p-1 flex flex-col justify-between overflow-hidden ${isSpecial ? 'ring-2 ring-yellow-400/50' : ''}`}>
         {/* Top left corner */}
         <div className={`text-sm sm:text-lg font-bold ${colorClass} leading-tight`}>
           <div>{card.rank}</div>

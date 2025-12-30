@@ -60,7 +60,7 @@ export default function TableCards({
   }
 
   return (
-    <div className="flex flex-col items-center gap-2 mb-4">
+    <div className="relative flex flex-col items-center mb-4">
       {/* Face down cards */}
       {cardsDown.length > 0 && (
         <div className="flex gap-1 justify-center">
@@ -76,7 +76,7 @@ export default function TableCards({
                 } : false}
                 animate={{ x: 0, y: 0, scale: 1, opacity: 1 }}
                 exit={EXIT_ANIMATIONS.toPile}
-                transition={{ duration: ANIMATION_DURATION.normal, ease: EASING.smooth }}
+                transition={{ duration: ANIMATION_DURATION.normal, ease: EASING.custom }}
               >
                 <Card
                   card={card}
@@ -93,7 +93,7 @@ export default function TableCards({
 
       {/* Face up cards */}
       {cardsUp.length > 0 && (
-        <div className="flex gap-1 justify-center">
+        <div className="flex gap-1 justify-center -mt-12">
           <AnimatePresence mode="popLayout">
             {cardsUp.map((card, index) => (
               <motion.div
@@ -106,7 +106,7 @@ export default function TableCards({
                 } : false}
                 animate={{ x: 0, y: 0, scale: 1, opacity: 1 }}
                 exit={EXIT_ANIMATIONS.toPile}
-                transition={{ duration: ANIMATION_DURATION.normal, ease: EASING.smooth }}
+                transition={{ duration: ANIMATION_DURATION.normal, ease: EASING.custom }}
               >
                 <Card
                   card={card}

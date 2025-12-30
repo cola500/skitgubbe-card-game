@@ -86,20 +86,22 @@ export default function PlayerHand({
   return (
     <div className="flex flex-col items-center">
       {label && <div className="text-white/80 text-sm font-semibold mb-2">{label}</div>}
-      <div className="flex gap-2 justify-center flex-wrap">
+      <div className="flex justify-center flex-wrap">
         <AnimatePresence mode="popLayout">
-          {cards.map(card => (
+          {cards.map((card, index) => (
             <motion.div
               key={card.id}
+              className={index > 0 ? '-ml-[34px] sm:-ml-[38px]' : ''}
+              style={{ zIndex: index }}
               initial={isNewCard(card) && !faceDown ? {
                 x: ANIMATION_ORIGINS.deck.x,
                 y: ANIMATION_ORIGINS.deck.y,
-                scale: 0.5,
-                opacity: 0
+                scale: 0.9,
+                opacity: 1
               } : false}
               animate={{ x: 0, y: 0, scale: 1, opacity: 1 }}
               exit={EXIT_ANIMATIONS.toPile}
-              transition={{ duration: ANIMATION_DURATION.normal, ease: EASING.smooth }}
+              transition={{ duration: ANIMATION_DURATION.normal, ease: EASING.custom }}
             >
               <Card
                 card={card}

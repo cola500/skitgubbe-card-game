@@ -9,6 +9,7 @@ export interface Card {
   rank: Rank;
   value: number;           // 2=2, 3=3, ..., J=11, Q=12, K=13, A=14
   isSpecial: boolean;      // true for 2, 5, 10, Ace
+  animationSource?: 'deck' | 'hand' | 'tableUp' | 'tableDown';  // Where card came from for animation
 }
 
 export interface PlayerState {

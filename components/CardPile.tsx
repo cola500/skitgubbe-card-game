@@ -13,21 +13,21 @@ interface CardPileProps {
   onClick?: () => void;
 }
 
-export default function CardPile({ cards, label, faceDown = false, onClick }: CardPileProps) {
-  const topCard = cards.length > 0 ? cards[cards.length - 1] : undefined;
-  const pileCount = cards.length;
+// Helper function to map animation sources to origin keys
+function getOriginKey(card: CardType): keyof typeof ANIMATION_ORIGINS {
+  const source = card.animationSource || 'hand';
+  return (source === 'tableUp' || source === 'tableDown') ? 'tableCards' : source;
+}
 
-  // Track previous top card för animation detection
-  const [prevTopCard, setPrevTopCard] = useState<CardType | undefined>(topCard);
+export default function CardPile({ cards, label, faceDown = false, onClick }: CardPileProps) {
+  const pileCount = cards.length;
+  // Visa max 10 senaste korten för prestanda
+  const visibleCards = cards.slice(-10);
+  const [prevCards, setPrevCards] = useState<CardType[]>(visibleCards);
 
   useEffect(() => {
-    if (topCard?.id !== prevTopCard?.id) {
-      setPrevTopCard(topCard);
-    }
-  }, [topCard, prevTopCard]);
-
-  // Detektera om det är ett nytt kort (från hand)
-  const isNewTopCard = topCard && (!prevTopCard || topCard.id !== prevTopCard.id);
+    setPrevCards(visibleCards);
+  }, [cards.length]);
 
   return (
     <div className="flex flex-col items-center gap-2">
@@ -41,39 +41,37 @@ export default function CardPile({ cards, label, faceDown = false, onClick }: Ca
           </div>
         )}
 
-        {/* Show top card with stack effect */}
+        {/* Show all cards with overlap */}
         {pileCount > 0 && (
-          <>
-            {/* Stack effect (background cards) */}
-            {pileCount > 1 && (
-              <>
-                <div className="absolute top-0.5 left-0.5 w-16 h-24 sm:w-20 sm:h-28 bg-white/20 rounded-lg -z-10" />
-                {pileCount > 2 && (
-                  <div className="absolute top-1 left-1 w-16 h-24 sm:w-20 sm:h-28 bg-white/10 rounded-lg -z-20" />
-                )}
-              </>
-            )}
+          <div
+            className={onClick ? 'flex cursor-pointer hover:opacity-90 transition-opacity' : 'flex'}
+            onClick={onClick}
+          >
+            <AnimatePresence mode="popLayout">
+              {visibleCards.map((card, index) => {
+                const isNewCard = !prevCards.some(c => c.id === card.id);
 
-            {/* Top card with animation - clickable if onClick provided */}
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={topCard?.id || 'empty'}
-                initial={isNewTopCard ? {
-                  x: ANIMATION_ORIGINS.hand.x,
-                  y: -ANIMATION_ORIGINS.hand.y, // Inverterad (från nedanför)
-                  scale: 0.5,
-                  opacity: 0
-                } : false}
-                animate={{ x: 0, y: 0, scale: 1, opacity: 1 }}
-                exit={{ scale: 0.8, opacity: 0 }}
-                transition={{ duration: ANIMATION_DURATION.normal, ease: EASING.smooth }}
-                onClick={onClick}
-                className={onClick ? 'cursor-pointer hover:opacity-90 transition-opacity' : ''}
-              >
-                <Card card={topCard} faceDown={faceDown} />
-              </motion.div>
+                return (
+                  <motion.div
+                    key={card.id}
+                    className={index > 0 ? '-ml-[40px] sm:-ml-[45px]' : ''}
+                    style={{ zIndex: index }}
+                    initial={isNewCard ? {
+                      x: ANIMATION_ORIGINS[getOriginKey(card)].x,
+                      y: ANIMATION_ORIGINS[getOriginKey(card)].y,
+                      scale: 0.9,
+                      opacity: 1
+                    } : false}
+                    animate={{ x: 0, y: 0, scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.95, opacity: 1 }}
+                    transition={{ duration: ANIMATION_DURATION.normal, ease: EASING.custom }}
+                  >
+                    <Card card={card} faceDown={faceDown} />
+                  </motion.div>
+                );
+              })}
             </AnimatePresence>
-          </>
+          </div>
         )}
       </div>
     </div>

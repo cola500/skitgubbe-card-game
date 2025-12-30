@@ -31,7 +31,8 @@ export default function GameBoard({
   onSortHand
 }: GameBoardProps) {
   const isPlayerTurn = gameState.currentTurn === 'player' && gameState.phase === 'playing';
-  const playerCardSource = getNextCardSource(gameState.player);
+  const playerCardSourceRaw = getNextCardSource(gameState.player);
+  const playerCardSource = playerCardSourceRaw === 'none' ? undefined : playerCardSourceRaw;
 
   // Helper for playing table cards directly
   const handlePlayTableCard = (card: Card) => {
@@ -58,27 +59,29 @@ export default function GameBoard({
           🤖 Dator
         </div>
 
-        {/* AI table cards */}
-        <TableCards
-          cardsDown={gameState.ai.tableCardsDown}
-          cardsUp={gameState.ai.tableCardsUp}
-          isPlayerTable={false}
-        />
+        <div className="flex gap-4 items-start justify-center">
+          {/* AI table cards */}
+          <TableCards
+            cardsDown={gameState.ai.tableCardsDown}
+            cardsUp={gameState.ai.tableCardsUp}
+            isPlayerTable={false}
+          />
 
-        {/* AI hand */}
-        <PlayerHand
-          cards={gameState.ai.hand}
-          selectedCards={[]}
-          onSelect={() => { }}
-          onDeselect={() => { }}
-          faceDown
-          label="Hand"
-          disabled
-        />
+          {/* AI hand */}
+          <PlayerHand
+            cards={gameState.ai.hand}
+            selectedCards={[]}
+            onSelect={() => { }}
+            onDeselect={() => { }}
+            faceDown
+            label="Hand"
+            disabled
+          />
+        </div>
       </div>
 
       {/* Center: Status + Deck + Discard Pile */}
-      <div className="flex-1 flex items-center justify-center gap-6">
+      <div className="flex items-start justify-center gap-6 min-h-[200px]">
         {/* Status box (left) */}
         <div className="w-64">
           <GameStatus
@@ -98,15 +101,15 @@ export default function GameBoard({
           }}
         >
           <div className="flex gap-8 items-center">
-            {/* Only show deck if not empty */}
-            {gameState.deck.length > 0 && (
+            {/* Deck - invisible when empty to preserve layout */}
+            <div className={gameState.deck.length === 0 ? 'invisible' : ''}>
               <CardPile
                 cards={gameState.deck}
                 label="Kortlek"
                 faceDown
                 onClick={isPlayerTurn ? onDrawCard : undefined}
               />
-            )}
+            </div>
 
             <CardPile
               cards={gameState.discardPile}
@@ -126,35 +129,39 @@ export default function GameBoard({
           🎮 Du
         </div>
 
-        {/* Player hand */}
-        <PlayerHand
-          cards={gameState.player.hand}
-          selectedCards={gameState.selectedCards}
-          onSelect={onSelectCard}
-          onDeselect={onDeselectCard}
-          onPlaySingle={onPlaySingleCard}
-          disabled={!isPlayerTurn}
-          label="Hand"
-        />
-
-        {/* Sort button */}
-        <div className="flex justify-center mt-2">
-          <SortButton
-            onClick={onSortHand}
-            disabled={!isPlayerTurn || gameState.player.hand.length === 0}
-            currentDirection={gameState.sortDirection}
+        <div className="flex gap-4 items-start justify-center">
+          {/* Player table cards */}
+          <TableCards
+            cardsDown={gameState.player.tableCardsDown}
+            cardsUp={gameState.player.tableCardsUp}
+            isPlayerTable
+            onPlayCard={handlePlayTableCard}
+            disabled={!isPlayerTurn}
+            currentSource={playerCardSource}
           />
-        </div>
 
-        {/* Player table cards */}
-        <TableCards
-          cardsDown={gameState.player.tableCardsDown}
-          cardsUp={gameState.player.tableCardsUp}
-          isPlayerTable
-          onPlayCard={handlePlayTableCard}
-          disabled={!isPlayerTurn}
-          currentSource={playerCardSource}
-        />
+          <div>
+            {/* Player hand */}
+            <PlayerHand
+              cards={gameState.player.hand}
+              selectedCards={gameState.selectedCards}
+              onSelect={onSelectCard}
+              onDeselect={onDeselectCard}
+              onPlaySingle={onPlaySingleCard}
+              disabled={!isPlayerTurn}
+              label="Hand"
+            />
+
+            {/* Sort button */}
+            <div className="flex justify-center mt-2">
+              <SortButton
+                onClick={onSortHand}
+                disabled={!isPlayerTurn || gameState.player.hand.length === 0}
+                currentDirection={gameState.sortDirection}
+              />
+            </div>
+          </div>
+        </div>
 
         {/* Controls */}
         <GameControls
