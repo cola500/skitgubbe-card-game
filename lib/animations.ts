@@ -17,7 +17,7 @@ export const EASING = {
 export const ANIMATION_ORIGINS = {
   deck: { x: -250, y: -200 },      // Från kortlek (vänster-upp)
   pile: { x: 150, y: -200 },       // Från högen (höger-upp)
-  hand: { x: 0, y: -150 },         // Från hand (rakt uppåt)
+  hand: { x: 0, y: 150 },          // Från hand (nedifrån-upp)
   tableCards: { x: 0, y: 100 }     // Från bordskort (nedåt)
 } as const;
 
@@ -25,7 +25,7 @@ export const ANIMATION_ORIGINS = {
 export const EXIT_ANIMATIONS = {
   toPile: { x: 150, y: -200, scale: 0.95, opacity: 1 },
   toDeck: { x: -250, y: -200, scale: 0.95, opacity: 1 },
-  toHand: { x: 0, y: -150, scale: 0.95, opacity: 1 },
+  toHand: { x: 0, y: 150, scale: 0.95, opacity: 1 },
   toTableCards: { x: 0, y: 100, scale: 0.95, opacity: 1 },
   generic: { scale: 0.95, opacity: 1 }
 } as const;
