@@ -50,15 +50,19 @@ export default function CardPile({ cards, label, faceDown = false, onClick }: Ca
             <AnimatePresence mode="popLayout">
               {visibleCards.map((card, index) => {
                 const isNewCard = !prevCards.some(c => c.id === card.id);
+                const originKey = getOriginKey(card);
+
+                // Använd bara initial animation för kort från deck/tableCards, inte från hand
+                const shouldAnimate = isNewCard && originKey !== 'hand';
 
                 return (
                   <motion.div
                     key={card.id}
-                    className={index > 0 ? '-ml-[40px] sm:-ml-[45px]' : ''}
+                    className={index > 0 ? '-ml-[54px] sm:-ml-[62px]' : ''}
                     style={{ zIndex: index }}
-                    initial={isNewCard ? {
-                      x: ANIMATION_ORIGINS[getOriginKey(card)].x,
-                      y: ANIMATION_ORIGINS[getOriginKey(card)].y,
+                    initial={shouldAnimate ? {
+                      x: ANIMATION_ORIGINS[originKey].x,
+                      y: ANIMATION_ORIGINS[originKey].y,
                       scale: 0.9,
                       opacity: 1
                     } : false}
