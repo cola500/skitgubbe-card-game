@@ -55,10 +55,15 @@ export default function CardPile({ cards, label, faceDown = false, onClick }: Ca
                 // Använd bara initial animation för kort från deck/tableCards, inte från hand
                 const shouldAnimate = isNewCard && originKey !== 'hand';
 
+                // Kortlek (faceDown) har 97% överlapp, högen har 70% överlapp
+                const overlapClass = faceDown
+                  ? '-ml-[54px] sm:-ml-[62px]'  // 97% överlapp för kortlek
+                  : '-ml-[40px] sm:-ml-[45px]'; // 70% överlapp för högen
+
                 return (
                   <motion.div
                     key={card.id}
-                    className={index > 0 ? '-ml-[54px] sm:-ml-[62px]' : ''}
+                    className={index > 0 ? overlapClass : ''}
                     style={{ zIndex: index }}
                     initial={shouldAnimate ? {
                       x: ANIMATION_ORIGINS[originKey].x,
