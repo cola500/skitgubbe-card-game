@@ -15,7 +15,7 @@ export const EASING = {
 
 // Animation origins (relativt till card position)
 export const ANIMATION_ORIGINS = {
-  deck: { x: -250, y: -200 },      // Från kortlek (vänster-upp)
+  deck: { x: -100, y: -300 },      // Från kortlek (mitten-vänster-upp)
   pile: { x: 150, y: -200 },       // Från högen (höger-upp)
   hand: { x: 0, y: 150 },          // Från hand (nedifrån-upp)
   tableCards: { x: 0, y: 100 }     // Från bordskort (nedåt)
@@ -24,7 +24,7 @@ export const ANIMATION_ORIGINS = {
 // Exit animations (till olika destinationer)
 export const EXIT_ANIMATIONS = {
   toPile: { x: 150, y: -200, scale: 0.95, opacity: 1 },
-  toDeck: { x: -250, y: -200, scale: 0.95, opacity: 1 },
+  toDeck: { x: -100, y: -300, scale: 0.95, opacity: 1 },
   toHand: { x: 0, y: 150, scale: 0.95, opacity: 1 },
   toTableCards: { x: 0, y: 100, scale: 0.95, opacity: 1 },
   generic: { scale: 0.95, opacity: 1 }
