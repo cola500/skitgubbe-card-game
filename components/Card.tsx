@@ -37,8 +37,39 @@ export default function Card({ card, faceDown = false, selected = false, onClick
         className={cardClasses}
         onClick={!disabled ? onClick : undefined}
       >
-        <div className="w-full h-full bg-gradient-to-br from-blue-600 to-purple-700 rounded-lg flex items-center justify-center">
-          <div className="text-white/30 text-2xl font-bold">?</div>
+        <div className="w-full h-full bg-gradient-to-br from-red-700 via-red-800 to-red-900 rounded-lg p-1.5 relative overflow-hidden">
+          {/* Dekorativ ram */}
+          <div className="absolute inset-2 border-2 border-yellow-400/40 rounded-md" />
+          <div className="absolute inset-3 border border-yellow-400/20 rounded-sm" />
+
+          {/* Hörn-ornament */}
+          <div className="absolute top-2 left-2 w-3 h-3 border-l-2 border-t-2 border-yellow-400/50 rounded-tl" />
+          <div className="absolute top-2 right-2 w-3 h-3 border-r-2 border-t-2 border-yellow-400/50 rounded-tr" />
+          <div className="absolute bottom-2 left-2 w-3 h-3 border-l-2 border-b-2 border-yellow-400/50 rounded-bl" />
+          <div className="absolute bottom-2 right-2 w-3 h-3 border-r-2 border-b-2 border-yellow-400/50 rounded-br" />
+
+          {/* Centralt mönster */}
+          <div className="w-full h-full flex items-center justify-center relative">
+            {/* Bakgrundsmönster - romber */}
+            <div className="absolute inset-0 flex items-center justify-center opacity-10">
+              <div className="grid grid-cols-3 gap-1">
+                {[...Array(9)].map((_, i) => (
+                  <div key={i} className="w-2 h-2 bg-yellow-400 rotate-45" />
+                ))}
+              </div>
+            </div>
+
+            {/* Huvudsymbol - elegant kort-ikon */}
+            <div className="relative">
+              <div className="text-yellow-400/70 text-3xl sm:text-4xl font-bold">
+                <svg className="w-6 h-8 sm:w-8 sm:h-10" viewBox="0 0 24 32" fill="currentColor">
+                  <rect x="2" y="2" width="20" height="28" rx="2" fill="none" stroke="currentColor" strokeWidth="2"/>
+                  <path d="M12 10 L16 14 L12 18 L8 14 Z" fill="currentColor" opacity="0.6"/>
+                  <circle cx="12" cy="24" r="2" fill="currentColor" opacity="0.6"/>
+                </svg>
+              </div>
+            </div>
+          </div>
         </div>
       </motion.div>
     );
